@@ -4,3 +4,8 @@
 // License text available at https://opensource.org/licenses/MIT
 
 export * from './todo.model';
+export * from './node-mailer.model';
+export * from './envelope.model';
+export * from './email-template.model';
+export * from './reset-password-init.model';
+export * from './key-and-password.model';
