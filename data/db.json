@@ -12,7 +12,7 @@
       "4": "{\"title\":\"crush rebel scum\",\"desc\":\"Every.Last.One.\",\"id\":4}"
     },
     "User": {
-      "1": "{\"id\":\"1\",\"realm\":\"string\",\"username\":\"string\",\"email\":\"test@gmail.com\",\"emailVerified\":true,\"verificationToken\":\"string\",\"additionalProp1\":{}}",
+      "1": "{\"id\":\"1\",\"realm\":\"string\",\"username\":\"string\",\"email\":\"test@gmail.com\",\"emailVerified\":true,\"verificationToken\":\"string\",\"additionalProp1\":{},\"resetKey\":\"27333353-ec88-4608-bb89-0b29967ec81e\"}",
       "4": "{\"username\":\"testuser1\",\"email\":\"testuser1@abc.com\",\"id\":4}"
     },
     "UserCredentials": {

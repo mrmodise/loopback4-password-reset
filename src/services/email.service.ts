@@ -1,7 +1,7 @@
 import {bind, BindingScope} from '@loopback/core';
 import {EmailTemplate, NodeMailer} from '../models';
 import {createTransport} from 'nodemailer';
-import { User } from '@loopback/authentication-jwt';
+import {User} from '@loopback/authentication-jwt';
 
 @bind({scope: BindingScope.TRANSIENT})
 export class EmailService {
@@ -39,4 +39,3 @@ export class EmailService {
     return transporter.sendMail(emailTemplate);
   }
 }
-

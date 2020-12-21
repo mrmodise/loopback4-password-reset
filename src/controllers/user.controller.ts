@@ -17,6 +17,7 @@ import {model, property, repository} from '@loopback/repository';
 import {
   get,
   getModelSchemaRef,
+  HttpErrors,
   post,
   requestBody,
   SchemaObject,
@@ -24,6 +25,9 @@ import {
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
 import _ from 'lodash';
+import {NodeMailer, ResetPasswordInit} from '../models';
+import {EmailService} from '../services';
+import {v4 as uuidv4} from 'uuid';
 
 @model()
 export class NewUserRequest extends User {
@@ -66,6 +70,8 @@ export class UserController {
     @inject(SecurityBindings.USER, {optional: true})
     public user: UserProfile,
     @repository(UserRepository) protected userRepository: UserRepository,
+    @inject('services.EmailService')
+    public emailService: EmailService,
   ) {}
 
   @post('/users/login', {
@@ -159,4 +165,56 @@ export class UserController {
   }
 
   // We will add our password reset here
+  @post('/reset-password/init')
+  async resetPasswordInit(
+    @requestBody() resetPasswordInit: ResetPasswordInit,
+  ): Promise<string> {
+    // checks whether email is valid as per regex pattern provided
+    const email = await this.validateEmail(resetPasswordInit.email);
+
+    // At this point we are dealing with valid email.
+    // Lets check whether there is an associated account
+    const foundUser = await this.userRepository.findOne({
+      where: {email},
+    });
+
+    // No account found
+    if (!foundUser) {
+      throw new HttpErrors.NotFound(
+        'No account associated with the provided email address.',
+      );
+    }
+
+    // We generate unique reset key to associate with reset request
+    foundUser.resetKey = uuidv4();
+
+    try {
+      // Updates the user to store their reset key with error handling
+      await this.userRepository.updateById(foundUser.id, foundUser);
+    } catch (e) {
+      return e;
+    }
+    // Send an email to the user's email address
+    const nodeMailer: NodeMailer = await this.emailService.sendResetPasswordMail(
+      foundUser,
+    );
+
+    // Nodemailer has accepted the request. All good
+    if (nodeMailer.accepted.length) {
+      return 'An email with password reset instructions has been sent to the provided email';
+    }
+
+    // Nodemailer did not complete the request alert the user
+    throw new HttpErrors.InternalServerError(
+      'Error sending reset password email',
+    );
+  }
+
+  async validateEmail(email: string): Promise<string> {
+    const emailRegPattern = /\S+@\S+\.\S+/;
+    if (!emailRegPattern.test(email)) {
+      throw new HttpErrors.UnprocessableEntity('Invalid email address');
+    }
+    return email;
+  }
 }
