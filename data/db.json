@@ -12,12 +12,12 @@
       "4": "{\"title\":\"crush rebel scum\",\"desc\":\"Every.Last.One.\",\"id\":4}"
     },
     "User": {
-      "1": "{\"id\":\"1\",\"realm\":\"string\",\"username\":\"string\",\"email\":\"test@gmail.com\",\"emailVerified\":true,\"verificationToken\":\"string\",\"additionalProp1\":{},\"resetKey\":\"27333353-ec88-4608-bb89-0b29967ec81e\"}",
+      "1": "{\"id\":\"1\",\"realm\":\"string\",\"username\":\"string\",\"email\":\"modisemorebodi@gmail.com\",\"emailVerified\":true,\"verificationToken\":\"string\",\"additionalProp1\":{},\"resetKey\":\"\"}",
       "4": "{\"username\":\"testuser1\",\"email\":\"testuser1@abc.com\",\"id\":4}"
     },
     "UserCredentials": {
       "1": "{\"password\":\"$2a$10$QrcA7GDOZ06TTXEBhuz87On8mcapb9qoU3rjWb7Z5pwBv7ZAbmXwa\",\"userId\":4,\"id\":1}",
-      "4f79cd6b-4453-4957-b227-70a7df40b532": "{\"id\":\"4f79cd6b-4453-4957-b227-70a7df40b532\",\"password\":\"$2a$10$Pkih8nmTaiMtJHgBJzJoQu3E0NYO1S4FvCd2cslysg7yfhrJjRefC\",\"userId\":\"1\"}"
+      "4f79cd6b-4453-4957-b227-70a7df40b532": "{\"id\":\"4f79cd6b-4453-4957-b227-70a7df40b532\",\"password\":\"$2a$10$8JkdaAaJrfxmTbptPNEy3epeJ3jSw6wrUSbLtqOVdoCHlYpneVIYe\",\"userId\":\"1\"}"
     }
   }
 }

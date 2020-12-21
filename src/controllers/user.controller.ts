@@ -19,15 +19,17 @@ import {
   getModelSchemaRef,
   HttpErrors,
   post,
+  put,
   requestBody,
   SchemaObject,
 } from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
 import _ from 'lodash';
-import {NodeMailer, ResetPasswordInit} from '../models';
+import {KeyAndPassword, NodeMailer, ResetPasswordInit} from '../models';
 import {EmailService} from '../services';
 import {v4 as uuidv4} from 'uuid';
+import {Key} from 'readline';
 
 @model()
 export class NewUserRequest extends User {
@@ -208,6 +210,70 @@ export class UserController {
     throw new HttpErrors.InternalServerError(
       'Error sending reset password email',
     );
+  }
+
+  @put('/reset-password/finish')
+  async resetPasswordFinish(
+    @requestBody() keyAndPassword: KeyAndPassword,
+  ): Promise<string> {
+    // Checks whether password and reset key meet minimum security requirements
+    const {resetKey, password} = await this.validateKeyPassword(keyAndPassword);
+
+    // Search for a user using reset key
+    const foundUser = await this.userRepository.findOne({
+      where: {resetKey: resetKey},
+    });
+
+    // No user account found
+    if (!foundUser) {
+      throw new HttpErrors.NotFound(
+        'No associated account for the provided reset key',
+      );
+    }
+
+    // Encrypt password to avoid storing it as plain text
+    const passwordHash = await hash(password, await genSalt());
+
+    try {
+      // Update user password with the newly provided password
+      await this.userRepository
+        .userCredentials(foundUser.id)
+        .patch({password: passwordHash});
+
+      // Remove reset key from database its no longer valid
+      foundUser.resetKey = '';
+
+      // Update the user removing the reset key
+      await this.userRepository.updateById(foundUser.id, foundUser);
+    } catch (e) {
+      return e;
+    }
+
+    return 'Password reset request completed successfully';
+  }
+
+  async validateKeyPassword(keyAndPassword: KeyAndPassword): Promise<KeyAndPassword> {
+    if (!keyAndPassword.password || keyAndPassword.password.length < 8) {
+      throw new HttpErrors.UnprocessableEntity(
+        'Password must be minimum of 8 characters',
+      );
+    }
+
+    if (keyAndPassword.password !== keyAndPassword.confirmPassword) {
+      throw new HttpErrors.UnprocessableEntity(
+        'Password and confirmation password do not match',
+      );
+    }
+
+    if (
+      _.isEmpty(keyAndPassword.resetKey) ||
+      keyAndPassword.resetKey.length === 0 ||
+      keyAndPassword.resetKey.trim() === ''
+    ) {
+      throw new HttpErrors.UnprocessableEntity('Reset key is mandatory');
+    }
+
+    return keyAndPassword;
   }
 
   async validateEmail(email: string): Promise<string> {
